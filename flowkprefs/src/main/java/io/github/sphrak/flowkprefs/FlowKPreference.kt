@@ -9,27 +9,27 @@ import io.github.sphrak.flowkprefs.adapter.IntAdapter
 import io.github.sphrak.flowkprefs.adapter.LongAdapter
 import io.github.sphrak.flowkprefs.adapter.StringAdapter
 import io.github.sphrak.flowkprefs.adapter.StringSetAdapter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @ExperimentalCoroutinesApi
 internal class FlowKPreference(
-    private val sharedPrefs: SharedPreferences
+    private val sharedPrefs: SharedPreferences,
+    private val coroutineScope: CoroutineScope
 ) : IFlowKPreference {
 
     @VisibleForTesting
     internal val onKeyChange: Flow<String> = callbackFlow {
-        Timber.d("ON KEY CHANGE INIT")
         val changeListener =
             SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                launch {
-                    Timber.d("KEY '$key' CHANGED")
-                    send(key)
-                }
+                coroutineScope
+                    .launch {
+                        send(key)
+                    }
             }
 
         sharedPrefs.registerOnSharedPreferenceChangeListener(changeListener)

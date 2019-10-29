@@ -1,9 +1,14 @@
 import io.github.sphrak.flowkprefs.buildsrc.Dependencies
+import com.jfrog.bintray.gradle.BintrayExtension
 
 plugins {
     id("com.android.library")
+    `maven-publish`
+    id("com.jfrog.bintray")
     kotlin("android")
 }
+
+val artifactId = "flowkprefs"
 
 configurations {
     ktlint
@@ -65,6 +70,36 @@ dependencies {
      */
     ktlint(Dependencies.Library.ktlintPlugin)
 
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("Flowkprefs") {
+            artifact("$buildDir/outputs/aar/flowkprefs-release.aar")
+            groupId = project.group as String
+            artifactId = project.name
+            version = project.version as String
+        }
+    }
+}
+
+bintray {
+    user = System.getenv("BINTRAY_USER")
+    key = System.getenv("BINTRAY_API_KEY")
+    publish = true
+    setPublications("mavenJava")
+    pkg(
+        delegateClosureOf<BintrayExtension.PackageConfig> {
+            repo = "flowkprefs"
+            name = artifactId
+            vcsUrl = "https://github.com/sphrak/Flowkprefs/"
+            version(
+                delegateClosureOf<BintrayExtension.VersionConfig> {
+                    name = project.version as String
+                }
+            )
+        }
+    )
 }
 
 tasks {

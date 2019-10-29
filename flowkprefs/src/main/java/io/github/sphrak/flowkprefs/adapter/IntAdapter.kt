@@ -3,6 +3,7 @@ package io.github.sphrak.flowkprefs.adapter
 import android.content.SharedPreferences
 
 internal class IntAdapter : IPreferenceAdapter<Int> {
+
     companion object {
         val INSTANCE = IntAdapter()
     }

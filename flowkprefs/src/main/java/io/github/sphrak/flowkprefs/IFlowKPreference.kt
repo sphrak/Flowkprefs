@@ -1,10 +1,7 @@
 package io.github.sphrak.flowkprefs
 
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.CheckResult
-import androidx.preference.PreferenceManager
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 interface IFlowKPreference {
 
@@ -93,27 +90,3 @@ interface IFlowKPreference {
     /** @return The underlying SharedPreferences instance. */
     fun getSharedPreferences(): SharedPreferences
 }
-
-/**
- * Retrieves a new instance of the [IFlowKPreference] interface for a specific shared prefs set.
- */
-@ExperimentalCoroutinesApi
-fun flowkPrefs(
-    context: Context,
-    key: String,
-    mode: Int = Context.MODE_PRIVATE
-): IFlowKPreference = FlowKPreference(context.getSharedPreferences(key, mode))
-
-/**
- * Retrieves a new instance of the [IFlowKPreference] interface for the default app shared prefs.
- */
-@ExperimentalCoroutinesApi
-fun flowkPrefs(context: Context): IFlowKPreference =
-    FlowKPreference(PreferenceManager.getDefaultSharedPreferences(context))
-
-/**
- * Retrieves a new instance of the [IFlowKPreference] interface for a custom SharedPreferences instance.
- */
-@ExperimentalCoroutinesApi
-fun flowkPrefs(sharedPrefs: SharedPreferences): IFlowKPreference =
-    FlowKPreference(sharedPrefs)

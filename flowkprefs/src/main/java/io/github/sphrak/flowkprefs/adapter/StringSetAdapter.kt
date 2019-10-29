@@ -3,6 +3,7 @@ package io.github.sphrak.flowkprefs.adapter
 import android.content.SharedPreferences
 
 internal class StringSetAdapter : IPreferenceAdapter<MutableSet<String>> {
+
     companion object {
         val INSTANCE = StringSetAdapter()
     }

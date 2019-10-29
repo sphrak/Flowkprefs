@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 
 interface IKPreference<T> : FlowCollector<T> {
+
     @CheckResult
     fun key(): String
 

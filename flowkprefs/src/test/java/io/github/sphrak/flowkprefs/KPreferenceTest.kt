@@ -8,11 +8,19 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import io.github.sphrak.flowkprefs.adapter.StringAdapter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
@@ -28,10 +36,12 @@ import org.mockito.Mockito.verify
 class KPreferenceTest {
 
     companion object {
-        const val PREF_KEY = "42"
+        const val PREF_KEY = "KEY"
         const val DEFAULT_VALUE = "asdf"
     }
 
+    private val testScope = TestCoroutineScope()
+    private val testCoroutineDispatcher = TestCoroutineDispatcher()
     private val keyChange = flowOf<String>()
     private val adapter = StringAdapter()
 
@@ -41,10 +51,11 @@ class KPreferenceTest {
     private var editor: SharedPreferences.Editor = mock(SharedPreferences.Editor::class.java)
     private var sharedPreferencesInstance: SharedPreferences = mock(SharedPreferences::class.java)
 
-    private lateinit var KPreference: KPreference<String>
+    private lateinit var kPreferenceString: KPreference<String>
 
     @Before
     fun setup() {
+        Dispatchers.setMain(testCoroutineDispatcher)
         doReturn(sharedPreferencesInstance)
             .`when`(context)
             .getSharedPreferences(PREF_KEY, MODE_PRIVATE)
@@ -59,7 +70,7 @@ class KPreferenceTest {
             return@thenAnswer sharedPreferences.getString(key, "") != null
         }
 
-        KPreference = KPreference(
+        kPreferenceString = KPreference(
             sharedPreferences = sharedPreferences,
             key = PREF_KEY,
             defaultValue = DEFAULT_VALUE,
@@ -68,9 +79,16 @@ class KPreferenceTest {
         )
     }
 
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+        testScope.cleanupTestCoroutines()
+        testCoroutineDispatcher.cleanupTestCoroutines()
+    }
+
     @Test
     fun `isSet is false`() {
-        assertThat(KPreference.isSet())
+        assertThat(kPreferenceString.isSet())
             .isFalse()
     }
 
@@ -80,7 +98,7 @@ class KPreferenceTest {
             .`when`(sharedPreferences)
             .getString(eq(PREF_KEY), any())
 
-        assertThat(KPreference.isSet())
+        assertThat(kPreferenceString.isSet())
             .isTrue()
     }
 
@@ -90,32 +108,36 @@ class KPreferenceTest {
         `when`(sharedPreferences.getString(eq(PREF_KEY), any()))
             .thenReturn(expectedValue)
 
-        val result = KPreference.get()
+        val result = kPreferenceString.get()
         assertThat(result).isEqualTo(expectedValue)
     }
 
     @Test
     fun `do delete value`() {
         `when`(editor.remove(PREF_KEY)).thenReturn(editor)
-        KPreference.delete()
+        kPreferenceString.delete()
         verify(editor.remove(PREF_KEY)).apply()
     }
 
     @Test
     fun `do observe value`() = runBlockingTest {
 
-        KPreference
+        kPreferenceString
             .observe()
 
         val nextValue = "no"
 
-        doReturn(nextValue)
-            .`when`(sharedPreferences)
-            .getString(eq(PREF_KEY), any())
+        doReturn(editor).`when`(editor).putString(PREF_KEY, nextValue)
 
-        doReturn(KPreference)
-            .`when`(editor)
-            .putString(PREF_KEY, nextValue)
+        kPreferenceString.set(nextValue)
+
+        testScope.launch {
+            kPreferenceString
+                .observe()
+                .collect {
+                    println("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                }
+        }
     }
 
     /*@Test
