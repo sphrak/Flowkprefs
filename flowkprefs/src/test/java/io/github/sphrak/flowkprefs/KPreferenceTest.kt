@@ -8,19 +8,12 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import io.github.sphrak.flowkprefs.adapter.StringAdapter
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
-import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
@@ -35,19 +28,17 @@ import org.mockito.Mockito.verify
 @ExperimentalCoroutinesApi
 class KPreferenceTest {
 
-    companion object {
+    private companion object {
         const val PREF_KEY = "KEY"
         const val DEFAULT_VALUE = "asdf"
     }
 
-    private val testScope = TestCoroutineScope()
-    private val testCoroutineDispatcher = TestCoroutineDispatcher()
-    private val keyChange = flowOf<String>()
-    private val adapter = StringAdapter()
+    private val keyChange = flowOf(PREF_KEY)
+    private val adapter = mock(StringAdapter::class.java)
 
     private lateinit var sharedPreferences: SharedPreferences
 
-    private var context: Context = mock(Context::class.java)
+    private val context: Context = mock(Context::class.java)
     private var editor: SharedPreferences.Editor = mock(SharedPreferences.Editor::class.java)
     private var sharedPreferencesInstance: SharedPreferences = mock(SharedPreferences::class.java)
 
@@ -55,7 +46,6 @@ class KPreferenceTest {
 
     @Before
     fun setup() {
-        Dispatchers.setMain(testCoroutineDispatcher)
         doReturn(sharedPreferencesInstance)
             .`when`(context)
             .getSharedPreferences(PREF_KEY, MODE_PRIVATE)
@@ -79,13 +69,6 @@ class KPreferenceTest {
         )
     }
 
-    @After
-    fun tearDown() {
-        Dispatchers.resetMain()
-        testScope.cleanupTestCoroutines()
-        testCoroutineDispatcher.cleanupTestCoroutines()
-    }
-
     @Test
     fun `isSet is false`() {
         assertThat(kPreferenceString.isSet())
@@ -105,8 +88,9 @@ class KPreferenceTest {
     @Test
     fun `do get value`() {
         val expectedValue = "lagom är bäst"
-        `when`(sharedPreferences.getString(eq(PREF_KEY), any()))
-            .thenReturn(expectedValue)
+
+        doReturn(expectedValue).`when`(adapter).get(PREF_KEY, sharedPreferences)
+        doReturn(expectedValue).`when`(sharedPreferences).getString(eq(PREF_KEY), any())
 
         val result = kPreferenceString.get()
         assertThat(result).isEqualTo(expectedValue)
@@ -114,59 +98,70 @@ class KPreferenceTest {
 
     @Test
     fun `do delete value`() {
-        `when`(editor.remove(PREF_KEY)).thenReturn(editor)
+        doReturn(editor).`when`(editor).remove(PREF_KEY)
         kPreferenceString.delete()
         verify(editor.remove(PREF_KEY)).apply()
     }
 
     @Test
-    fun `do observe value`() = runBlockingTest {
+    fun `do single observe value`() = runBlockingTest {
+
+        val nextValue = "no"
+        var captured: String? = null
+
+        doReturn(editor).`when`(editor).putString(PREF_KEY, nextValue)
+        doReturn(true).`when`(sharedPreferences).contains(PREF_KEY)
+        doReturn(nextValue).`when`(adapter).get(PREF_KEY, sharedPreferences)
+
+        assertThat(kPreferenceString.isSet()).isTrue()
 
         kPreferenceString
             .observe()
-
-        val nextValue = "no"
-
-        doReturn(editor).`when`(editor).putString(PREF_KEY, nextValue)
+            .collect {
+                captured = it
+            }
 
         kPreferenceString.set(nextValue)
 
-        testScope.launch {
-            kPreferenceString
-                .observe()
-                .collect {
-                    println("AAAAAAAAAAAAAAAAAAAAAAAAAAA")
-                }
-        }
+        assertThat(captured).isEqualTo(nextValue)
     }
 
-    /*@Test
-    fun `do consume value`() = runBlockingTest {
+    @Test
+    fun `do single observe value multiple observers`() = runBlockingTest {
 
-        `when`(editor.putString(any(), any()))
-            .thenReturn(editor)
+        val nextValue = "no"
+        var observed1: String? = null
+        var observed2: String? = null
+        var observed3: String? = null
 
-        preference
+        doReturn(editor).`when`(editor).putString(PREF_KEY, nextValue)
+        doReturn(true).`when`(sharedPreferences).contains(PREF_KEY)
+        doReturn(nextValue).`when`(adapter).get(PREF_KEY, sharedPreferences)
+
+        assertThat(kPreferenceString.isSet()).isTrue()
+
+        kPreferenceString
             .observe()
-            .collect(
+            .collect {
+                observed1 = it
+            }
 
-            )
+        kPreferenceString
+            .observe()
+            .collect {
+                observed2 = it
+            }
 
-        verify(editor.putString(PREF_KEY, value)).apply()
-    }*/
+        kPreferenceString
+            .observe()
+            .collect {
+                observed3 = it
+            }
 
-    /**
-     * @Test fun consumer() {
-    whenever(prefsEditor.putString(any(), any()))
-    .doReturn(prefsEditor)
+        kPreferenceString.set(nextValue)
 
-    val emitter = PublishSubject.create<String>()
-    emitter.subscribe(pref)
-
-    val value = "wakanda forever"
-    emitter.onNext(value)
-
-    verify(prefsEditor.putString(PREF_KEY, value)).apply()
+        assertThat(observed1).isEqualTo(nextValue)
+        assertThat(observed2).isEqualTo(nextValue)
+        assertThat(observed3).isEqualTo(nextValue)
     }
-     */
 }

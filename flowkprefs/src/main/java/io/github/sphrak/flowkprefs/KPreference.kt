@@ -1,6 +1,7 @@
 package io.github.sphrak.flowkprefs
 
 import android.content.SharedPreferences
+import androidx.annotation.VisibleForTesting
 import io.github.sphrak.flowkprefs.adapter.IPreferenceAdapter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -16,6 +17,7 @@ internal class KPreference<T>(
     private val adapter: IPreferenceAdapter<T>
 ) : IKPreference<T> {
 
+    @VisibleForTesting
     private val values: Flow<T> = onKeyChange
             .filter {
                 it == key

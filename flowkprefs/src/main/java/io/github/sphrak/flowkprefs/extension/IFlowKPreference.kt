@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import io.github.sphrak.flowkprefs.FlowKPreference
 import io.github.sphrak.flowkprefs.IFlowKPreference
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 /**
@@ -14,27 +13,24 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @ExperimentalCoroutinesApi
 fun flowkPrefs(
     context: Context,
-    coroutineScope: CoroutineScope,
     key: String,
     mode: Int = Context.MODE_PRIVATE
-): IFlowKPreference = FlowKPreference(context.getSharedPreferences(key, mode), coroutineScope)
+): IFlowKPreference = FlowKPreference(context.getSharedPreferences(key, mode))
 
 /**
  * Retrieves a new instance of the [IFlowKPreference] interface for the default app shared prefs.
  */
 @ExperimentalCoroutinesApi
 fun flowkPrefs(
-    context: Context,
-    coroutineScope: CoroutineScope
+    context: Context
 ): IFlowKPreference =
-    FlowKPreference(PreferenceManager.getDefaultSharedPreferences(context), coroutineScope)
+    FlowKPreference(PreferenceManager.getDefaultSharedPreferences(context))
 
 /**
  * Retrieves a new instance of the [IFlowKPreference] interface for a custom SharedPreferences instance.
  */
 @ExperimentalCoroutinesApi
 fun flowkPrefs(
-    sharedPrefs: SharedPreferences,
-    coroutineScope: CoroutineScope
+    sharedPrefs: SharedPreferences
 ): IFlowKPreference =
-    FlowKPreference(sharedPrefs, coroutineScope)
+    FlowKPreference(sharedPrefs)
