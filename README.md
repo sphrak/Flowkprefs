@@ -2,7 +2,7 @@
 [![Bintray](https://img.shields.io/bintray/v/sphrak/flowkprefs/flowkprefs)](https://bintray.com/sphrak/flowkprefs/flowkprefs)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/sphrak/flowkprefs/blob/master/LICENSE)
 
-# Flowkprefs
+# 🛸 Flowkprefs
 This is a clone of Aidan Follestad's [rxkprefs](https://github.com/afollestad/rxkprefs) library. The only difference is that this library uses the Kotlin [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) and [Flow](https://kotlinlang.org/docs/reference/coroutines/flow.html#asynchronous-flow) APIs.
 
 ### Gradle Dependency 
