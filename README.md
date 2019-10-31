@@ -3,7 +3,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/sphrak/flowkprefs/blob/master/LICENSE)
 
 # 🛸 Flowkprefs
-This is a clone of Aidan Follestad's [rxkprefs](https://github.com/afollestad/rxkprefs) library. The only difference is that this library uses the Kotlin [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) and [Flow](https://kotlinlang.org/docs/reference/coroutines/flow.html#asynchronous-flow) APIs.
+This is a Kotlin Coroutine/Flow based reimplementation of Aidan Follestad's [rxkprefs](https://github.com/afollestad/rxkprefs) library.
+The only difference is that this library uses the Kotlin [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) and [Flow](https://kotlinlang.org/docs/reference/coroutines/flow.html#asynchronous-flow) APIs.
 
 ### Gradle Dependency 
 Make sure that you have either `jcenter()` or `mavenCentral()` in the list of repositories.
@@ -13,16 +14,16 @@ repositories {
 }
 ```
 
-**build.gradle:**
-
-```groovy
-implementation "io.github.sphrak:flowkprefs:1.0.0"
-```
-
 **build.gradle.kts:**
 
 ```kotlin
 implementation("io.github.sphrak:flowkprefs:1.0.0")
+```
+
+**build.gradle:**
+
+```groovy
+implementation "io.github.sphrak:flowkprefs:1.0.0"
 ```
 
 ### Getting started
