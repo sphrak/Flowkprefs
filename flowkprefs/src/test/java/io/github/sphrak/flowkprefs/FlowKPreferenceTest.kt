@@ -3,20 +3,31 @@ package io.github.sphrak.flowkprefs
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
+import assertk.assertThat
+import assertk.assertions.isEqualTo
+import assertk.assertions.isNotEqualTo
+import assertk.assertions.isTrue
 import io.github.sphrak.flowkprefs.extension.flowkPrefs
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
+import org.junit.Test
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
 
+@InternalCoroutinesApi
 @ExperimentalCoroutinesApi
 class FlowKPreferenceTest {
 
     private companion object {
         const val PREF_KEY = "42"
         const val PREF_MODE = MODE_PRIVATE
-        const val DEFAULT_VALUE = "asdf"
     }
 
     private var mockSharedPreferences = mock(SharedPreferences::class.java)
@@ -43,19 +54,125 @@ class FlowKPreferenceTest {
         flowkPrefs = flowkPrefs(sharedPreferences)
     }
 
-    /*@Test
+    @Test
     fun `observe value change`() = runBlockingTest {
 
         val key = "secret_key"
         val observer = (flowkPrefs as FlowKPreference).onKeyChange
+        var observedValue: String? = null
 
         assertThat(listener).isNotEqualTo(null)
 
         flowkPrefs.string(key, "asdfasdf")
-        observer.collect {
-            println(it)
-        }
+        observer
+            .collect { observedValue = it }
 
-        //verify(sharedPreferences).registerOnSharedPreferenceChangeListener(listener)
-    }*/
+        verify(sharedPreferences).registerOnSharedPreferenceChangeListener(listener)
+        assertThat(observedValue).isEqualTo("asdfasdf")
+    }
+
+    @Test
+    fun `test boolean`() {
+        val key = "bool_key"
+        val pref = flowkPrefs.boolean(key, true)
+
+        assertThat(pref.key()).isEqualTo(key)
+        assertThat(pref.defaultValue()).isTrue()
+    }
+
+    @Test
+    fun `test float`() {
+        val key = "float_key"
+        val pref = flowkPrefs.float(key, 1f)
+
+        assertThat(pref.key()).isEqualTo(key)
+        assertThat(pref.defaultValue()).isEqualTo(1f)
+    }
+
+    @Test
+    fun `test integer`() {
+        val key = "integer_key"
+        val pref = flowkPrefs.integer(key, 62)
+
+        assertThat(pref.key()).isEqualTo(key)
+        assertThat(pref.defaultValue()).isEqualTo(62)
+    }
+
+    @Test
+    fun `test long`() {
+        val key = "long_key"
+        val pref = flowkPrefs.long(key, 12771L)
+
+        assertThat(pref.key()).isEqualTo(key)
+        assertThat(pref.defaultValue()).isEqualTo(12771L)
+    }
+
+    @Test
+    fun `test string`() {
+        val key = "string_key"
+        val pref = flowkPrefs.string(key, "correct horse battery staple")
+
+        assertThat(pref.key()).isEqualTo(key)
+        assertThat(pref.defaultValue()).isEqualTo("correct horse battery staple")
+    }
+
+    @Test
+    fun `test string set`() {
+        val key = "stringset_key"
+
+        val defaultValue = mutableSetOf("correct horse battery staple")
+        val pref = flowkPrefs.stringSet(key, defaultValue = defaultValue)
+
+        assertThat(pref.key()).isEqualTo(key)
+        assertThat(pref.defaultValue()).isEqualTo(defaultValue)
+    }
+
+    @Test
+    fun `test enum`() {
+        val key = "enum_key"
+
+        val pref = flowkPrefs.enum(
+            key,
+            Character.A,
+            Character.Companion::fromString,
+            Character.Companion::toString
+        )
+
+        assertThat(pref.key()).isEqualTo(key)
+        assertThat(pref.defaultValue()).isEqualTo(Character.A)
+
+        doReturn(true).`when`(sharedPreferences).contains(key)
+        doReturn("a").`when`(sharedPreferences).getString(eq(key), any())
+        assertThat(pref.get()).isEqualTo(Character.A)
+
+        doReturn("c").`when`(sharedPreferences).getString(eq(key), any())
+        assertThat(pref.get()).isEqualTo(Character.C)
+
+        pref.set(Character.D)
+        verify(editor).putString(key, "d")
+    }
+
+    @Test
+    fun `test clear`() {
+        doReturn(editor).`when`(editor).clear()
+        flowkPrefs.clear()
+        verify(editor.clear()).apply()
+    }
+
+    enum class Character {
+
+        A,
+        B,
+        C,
+        D;
+
+        companion object {
+            fun fromString(rawValue: String): Character =
+                values()
+                    .single { it.name.toLowerCase() == rawValue }
+
+            fun toString(value: Character): String =
+                value.name.toLowerCase()
+        }
+    }
 }
