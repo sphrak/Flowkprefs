@@ -28,7 +28,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.setMain
@@ -38,10 +40,13 @@ import org.junit.Before
 import org.junit.Test
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.doAnswer
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.mockito.stubbing.Answer
 
 @InternalCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -53,56 +58,74 @@ class FlowKPreferenceTest {
     }
 
     private var mockSharedPreferences = mock(SharedPreferences::class.java)
+
+
     private lateinit var sharedPreferences: SharedPreferences
 
     private val context: Context = mock<Context>(Context::class.java)
     private var editor: SharedPreferences.Editor =
         mock(SharedPreferences.Editor::class.java)
 
-    private var listener = mock(SharedPreferences.OnSharedPreferenceChangeListener::class.java)
+    private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
     private lateinit var flowkPrefs: IFlowKPreference
 
-    private val testCoroutineDispatcher = TestCoroutineDispatcher()
+    private val testCoroutineScope = TestCoroutineScope()
 
     @Before
     fun setup() {
-        Dispatchers.setMain(testCoroutineDispatcher)
+
         doReturn(mockSharedPreferences).`when`(context).getSharedPreferences(PREF_KEY, PREF_MODE)
         sharedPreferences = context.getSharedPreferences(PREF_KEY, PREF_MODE)
 
-        doReturn(editor).`when`(sharedPreferences).edit()
-        doNothing().`when`(sharedPreferences)
-            .registerOnSharedPreferenceChangeListener(listener)
+        doAnswer {
+            listener = it.getArgument(0)
+            listener
+            Unit
+        }.`when`(sharedPreferences).registerOnSharedPreferenceChangeListener(any())
 
-        flowkPrefs = flowkPrefs(sharedPreferences)
+        doReturn(editor).`when`(sharedPreferences).edit()
+
+        flowkPrefs = flowkPrefs(sharedPreferences, testCoroutineScope)
     }
 
     @After
     fun teardown() {
-        Dispatchers.resetMain()
-        testCoroutineDispatcher.cleanupTestCoroutines()
+        testCoroutineScope.cleanupTestCoroutines()
     }
 
-    /*@Test
-    fun `observe value change`() = runBlockingTest {
+    @Test
+    fun `observe value change`() = testCoroutineScope
+        .runBlockingTest {
+            var recvKey: String? = null
 
-        val key = "secret_key"
-        val observer = (flowkPrefs as FlowKPreference).onKeyChange
-        var observedValue: String? = null
+            val key = "secret_key"
 
-        assertThat(listener).isNotEqualTo(null)
+            // when evaluated should register a click listener
+            // in [FlowKPreference].
+            val observer = (flowkPrefs as FlowKPreference)
+                .onKeyChange
 
-        flowkPrefs.string(key, "asdfasdf")
+            // it should thus not be null here because we mock and
+            // set listener to it.getArguments(0) whenever invoked
+            assertThat(listener).isNotEqualTo(null)
 
-        withContext(Dispatchers.Main) {
-            observer
-                .collect { observedValue = it }
+            // and a call to .register should have been invoked
+            verify(sharedPreferences).registerOnSharedPreferenceChangeListener(listener)
+
+            listener?.onSharedPreferenceChanged(sharedPreferences, key)
+
+            testCoroutineScope
+                .launch {
+                    observer
+                        .collect {
+                            println("asdf")
+                            recvKey = it
+                        }
+                }
+
+            assertThat(recvKey).isEqualTo(key)
         }
-
-        verify(sharedPreferences).registerOnSharedPreferenceChangeListener(listener)
-        assertThat(observedValue).isEqualTo("asdfasdf")
-    }*/
 
     @Test
     fun `test boolean`() {

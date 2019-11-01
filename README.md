@@ -6,7 +6,7 @@
 This is a Kotlin Coroutine/Flow based reimplementation of Aidan Follestad's [rxkprefs](https://github.com/afollestad/rxkprefs) library.
 The only difference is that this library uses the Kotlin [Coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) and [Flow](https://kotlinlang.org/docs/reference/coroutines/flow.html#asynchronous-flow) APIs.
 
-<img src="https://raw.githubusercontent.com/sphrak/Flowkprefs/master/showcase.png" width="500" />
+<img src="https://raw.githubusercontent.com/sphrak/Flowkprefs/master/showcase.png" width="384" />
 
 ### Gradle Dependency 
 Make sure that you have either `jcenter()` or `mavenCentral()` in the list of repositories.

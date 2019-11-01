@@ -25,6 +25,7 @@ import io.github.sphrak.flowkprefs.adapter.IntAdapter
 import io.github.sphrak.flowkprefs.adapter.LongAdapter
 import io.github.sphrak.flowkprefs.adapter.StringAdapter
 import io.github.sphrak.flowkprefs.adapter.StringSetAdapter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -33,14 +34,15 @@ import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 internal class FlowKPreference(
-    private val sharedPrefs: SharedPreferences
+    private val sharedPrefs: SharedPreferences,
+    private val coroutineScope: CoroutineScope
 ) : IFlowKPreference {
 
     @VisibleForTesting
     internal val onKeyChange: Flow<String> = callbackFlow {
         val changeListener =
             SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                launch {
+                coroutineScope.launch {
                     send(key)
                 }
             }
