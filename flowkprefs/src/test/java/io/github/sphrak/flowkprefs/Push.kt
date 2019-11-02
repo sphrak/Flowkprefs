@@ -22,6 +22,9 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import io.github.sphrak.flowkprefs.extension.flowkPrefs
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -30,15 +33,6 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.any
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.doReturn
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 @ExperimentalCoroutinesApi
 class Push {
@@ -48,10 +42,10 @@ class Push {
         const val PREF_MODE = Context.MODE_PRIVATE
     }
 
-    private val mockSharedPreferences = mock(SharedPreferences::class.java)
-    private val mockEditor = mock(SharedPreferences.Editor::class.java)
+    private val mockSharedPreferences = mockk<SharedPreferences>()
+    private val mockEditor = mockk<SharedPreferences.Editor>()
 
-    private val mockContext = mock(Context::class.java)
+    private val mockContext = mockk<Context>()
     private val testCoroutineScope = TestCoroutineScope()
 
     private lateinit var testFlowkPrefs: IFlowKPreference
@@ -60,23 +54,17 @@ class Push {
     @Before
     fun setup() {
 
-        doReturn(mockSharedPreferences)
-            .`when`(mockContext)
-            .getSharedPreferences(PREF_KEY, PREF_MODE)
-
-        doReturn(mockEditor)
-            .`when`(mockSharedPreferences).edit()
-
-        doAnswer {
-            listener = it.getArgument(1)
-            Unit
-        }.`when`(
-            mockSharedPreferences
-        ).registerOnSharedPreferenceChangeListener(
-            any(
-                SharedPreferences.OnSharedPreferenceChangeListener::class.java
+        every {
+            mockContext.getSharedPreferences(
+                PREF_KEY,
+                PREF_MODE
             )
-        )
+        } returns mockSharedPreferences
+        every { mockSharedPreferences.edit() } returns mockEditor
+
+        every { mockSharedPreferences.registerOnSharedPreferenceChangeListener(any()) } answers {
+            listener = arg(0)
+        }
 
         testFlowkPrefs = flowkPrefs(mockContext, testCoroutineScope, PREF_KEY, PREF_MODE)
     }
@@ -99,15 +87,6 @@ class Push {
                 val observer = (testFlowkPrefs as FlowKPreference)
                     .onKeyChange
 
-                // it should thus not be null here because we mock and
-                // set listener to it.getArguments(0) whenever invoked
-                assertThat(listener).isNotEqualTo(null)
-
-                // and a call to .register should have been invoked
-                verify(mockSharedPreferences).registerOnSharedPreferenceChangeListener(listener)
-
-                listener?.onSharedPreferenceChanged(mockSharedPreferences, key)
-
                 testCoroutineScope
                     .launch {
                         observer
@@ -117,7 +96,18 @@ class Push {
                             }
                     }
 
+                // it should thus not be null here because we mock and
+                // set listener to it.getArguments(0) whenever invoked
+                assertThat(listener).isNotEqualTo(null)
+
+                observer.collect()
+                // and a call to .register should have been invoked
+                verify {
+                    mockSharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+                }
+
+                listener?.onSharedPreferenceChanged(mockSharedPreferences, key)
+
                 assertThat(recvKey).isEqualTo(key)
             }
-
 }

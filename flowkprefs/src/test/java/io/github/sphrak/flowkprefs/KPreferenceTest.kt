@@ -24,6 +24,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import io.github.sphrak.flowkprefs.adapter.StringAdapter
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -32,12 +35,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.doReturn
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 @FlowPreview
 @InternalCoroutinesApi
@@ -45,36 +42,34 @@ import org.mockito.Mockito.verify
 class KPreferenceTest {
 
     private companion object {
-        const val PREF_KEY = "KEY"
+        const val PREF_KEY = "THIS_IS_A_KEY"
+        const val PREF_MODE = MODE_PRIVATE
         const val DEFAULT_VALUE = "asdf"
     }
 
     private val keyChange = flowOf(PREF_KEY)
-    private val adapter = mock(StringAdapter::class.java)
-
-    private lateinit var sharedPreferences: SharedPreferences
-
-    private val context: Context = mock(Context::class.java)
-    private var editor: SharedPreferences.Editor = mock(SharedPreferences.Editor::class.java)
-    private var sharedPreferencesInstance: SharedPreferences = mock(SharedPreferences::class.java)
+    private val adapter = mockk<StringAdapter>()
+    private val sharedPreferences = mockk<SharedPreferences>()
+    private val context = mockk<Context>()
+    private var editor = mockk<SharedPreferences.Editor>()
 
     private lateinit var kPreferenceString: KPreference<String>
 
     @Before
     fun setup() {
-        doReturn(sharedPreferencesInstance)
-            .`when`(context)
-            .getSharedPreferences(PREF_KEY, MODE_PRIVATE)
 
-        doReturn(editor).`when`(sharedPreferencesInstance).edit()
+        every { context.getSharedPreferences(PREF_KEY, PREF_MODE) } returns sharedPreferences
+        every { sharedPreferences.edit() } returns editor
+        every { sharedPreferences.contains(PREF_KEY) } answers {
+            val key: String = args[0] as String
+            println("KEY: $key")
+            sharedPreferences.getString(key, "") != null
+        }
 
-        sharedPreferences = context.getSharedPreferences(PREF_KEY, MODE_PRIVATE)
-        editor = sharedPreferences.edit()
-
-        `when`(sharedPreferences.contains(any())).thenAnswer {
+        /*`when`(sharedPreferences.contains(any())).thenAnswer {
             val key: String = it.getArgument<String>(0)
             return@thenAnswer sharedPreferences.getString(key, "") != null
-        }
+        }*/
 
         kPreferenceString = KPreference(
             sharedPreferences = sharedPreferences,
@@ -87,16 +82,14 @@ class KPreferenceTest {
 
     @Test
     fun `isSet is false`() {
+        every { sharedPreferences.contains(PREF_KEY) } returns false
         assertThat(kPreferenceString.isSet())
             .isFalse()
     }
 
     @Test
     fun `isSet is true`() {
-        doReturn("asdf")
-            .`when`(sharedPreferences)
-            .getString(eq(PREF_KEY), any())
-
+        every { sharedPreferences.getString(eq(PREF_KEY), any()) } returns "asdf"
         assertThat(kPreferenceString.isSet())
             .isTrue()
     }
@@ -105,8 +98,8 @@ class KPreferenceTest {
     fun `do get value`() {
         val expectedValue = "lagom är bäst"
 
-        doReturn(expectedValue).`when`(adapter).get(PREF_KEY, sharedPreferences)
-        doReturn(expectedValue).`when`(sharedPreferences).getString(eq(PREF_KEY), any())
+        every { adapter.get(eq(PREF_KEY), sharedPreferences) } returns expectedValue
+        every { sharedPreferences.getString(eq(PREF_KEY), any()) } returns expectedValue
 
         val result = kPreferenceString.get()
         assertThat(result).isEqualTo(expectedValue)
@@ -114,9 +107,16 @@ class KPreferenceTest {
 
     @Test
     fun `do delete value`() {
-        doReturn(editor).`when`(editor).remove(PREF_KEY)
+        every { editor.remove(PREF_KEY) } returns editor
+        every { editor.remove(PREF_KEY).apply() } returns Unit
+
         kPreferenceString.delete()
-        verify(editor.remove(PREF_KEY)).apply()
+
+        verify {
+            editor
+                .remove(PREF_KEY)
+                .apply()
+        }
     }
 
     @Test
@@ -125,9 +125,11 @@ class KPreferenceTest {
         val nextValue = "no"
         var captured: String? = null
 
-        doReturn(editor).`when`(editor).putString(PREF_KEY, nextValue)
-        doReturn(true).`when`(sharedPreferences).contains(PREF_KEY)
-        doReturn(nextValue).`when`(adapter).get(PREF_KEY, sharedPreferences)
+        every { editor.putString(PREF_KEY, nextValue) } returns editor
+        every { editor.apply() } returns Unit
+        every { sharedPreferences.contains(PREF_KEY) } returns true
+        every { adapter.set(eq(PREF_KEY), any(), editor) } returns Unit
+        every { adapter.get(PREF_KEY, sharedPreferences) } returns nextValue
 
         assertThat(kPreferenceString.isSet()).isTrue()
 
@@ -150,9 +152,11 @@ class KPreferenceTest {
         var observed2: String? = null
         var observed3: String? = null
 
-        doReturn(editor).`when`(editor).putString(PREF_KEY, nextValue)
-        doReturn(true).`when`(sharedPreferences).contains(PREF_KEY)
-        doReturn(nextValue).`when`(adapter).get(PREF_KEY, sharedPreferences)
+        every { editor.putString(PREF_KEY, nextValue) } returns editor
+        every { editor.apply() } returns Unit
+        every { sharedPreferences.contains(PREF_KEY) } returns true
+        every { adapter.set(eq(PREF_KEY), any(), editor) } returns Unit
+        every { adapter.get(PREF_KEY, sharedPreferences) } returns nextValue
 
         assertThat(kPreferenceString.isSet()).isTrue()
 

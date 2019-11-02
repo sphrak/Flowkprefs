@@ -19,7 +19,6 @@ package io.github.sphrak.flowkprefs.buildsrc
 object Dependencies {
 
     object Version {
-        const val assertJ = "3.13.2"
         const val kotlinStdLib = "1.3.50"
         const val kotlinxCoroutinesCore = "1.3.0"
         const val kotlinxCoroutinesAndroid = "1.3.0"
@@ -34,7 +33,6 @@ object Dependencies {
         const val assertK = "0.19"
         const val androidXPreference = "1.1.0"
         const val mockK = "1.9.3"
-        const val mockito = "3.1.0"
     }
 
     object Android {
@@ -47,11 +45,9 @@ object Dependencies {
 
     object Library {
         const val assertK = "com.willowtreeapps.assertk:assertk-jvm:${Version.assertK}"
-        const val assertJ = "org.assertj:assertj-core:${Version.assertJ}"
         const val mockK = "io.mockk:mockk:${Version.mockK}"
         const val androidXPreference = "androidx.preference:preference-ktx:${Version.androidXPreference}"
 
-        const val mockito = "org.mockito:mockito-core:${Version.mockito}"
         const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Version.kotlinStdLib}"
         const val androidxCoreKtx = "androidx.core:core-ktx:${Version.androidxCoreKtx}"
         const val timber = "com.jakewharton.timber:timber:${Version.timber}"

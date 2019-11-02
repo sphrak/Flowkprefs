@@ -7,7 +7,6 @@ import io.github.sphrak.flowkprefs.FlowKPreference
 import io.github.sphrak.flowkprefs.IFlowKPreference
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlin.coroutines.coroutineContext
 
 /**
  * Retrieves a new instance of the [IFlowKPreference] interface for a specific shared prefs set.

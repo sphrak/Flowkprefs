@@ -71,7 +71,7 @@ dependencies {
     testImplementation(Dependencies.Library.junit)
     testImplementation(Dependencies.Library.assertK)
     testImplementation(Dependencies.Library.kotlinxCoroutinesTest)
-    testImplementation(Dependencies.Library.mockito)
+    testImplementation(Dependencies.Library.mockK)
 
     implementation(Dependencies.Library.timber)
 
