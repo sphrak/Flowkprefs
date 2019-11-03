@@ -24,6 +24,9 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isNotEqualTo
 import assertk.assertions.isTrue
 import io.github.sphrak.flowkprefs.extension.flowkPrefs
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.collect
@@ -33,13 +36,6 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.eq
-import org.mockito.Mockito.`when`
-import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.doReturn
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
 
 @InternalCoroutinesApi
 @ExperimentalCoroutinesApi
@@ -50,41 +46,29 @@ class FlowKPreferenceTest {
         const val PREF_MODE = MODE_PRIVATE
     }
 
-    private var mockSharedPreferences = mock(SharedPreferences::class.java)
-
-    private lateinit var sharedPreferences: SharedPreferences
-
-    private val context: Context = mock<Context>(Context::class.java)
-    private var editor: SharedPreferences.Editor =
-        mock(SharedPreferences.Editor::class.java)
+    private val mockSharedPreferences = mockk<SharedPreferences>()
+    private val mockContext = mockk<Context>()
+    private val mockEditor = mockk<SharedPreferences.Editor>()
 
     private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
-    private lateinit var flowkPrefs: IFlowKPreference
+    private lateinit var testFlowkPrefs: IFlowKPreference
 
     private val testCoroutineScope = TestCoroutineScope()
 
     @Before
     fun setup() {
-
-        doReturn(mockSharedPreferences).`when`(context).getSharedPreferences(PREF_KEY, PREF_MODE)
-        sharedPreferences = context.getSharedPreferences(PREF_KEY, PREF_MODE)
-
-        // we do this to get access to the actual listener
-        doAnswer {
-            listener = it.getArgument(0)
-            Unit
-        }.`when`(sharedPreferences).registerOnSharedPreferenceChangeListener(any())
-
-        // we do this to get access to the actual listener
-        `when`(sharedPreferences.registerOnSharedPreferenceChangeListener(any())).thenAnswer {
-            listener = it.getArgument(0)
-            Unit
+        every { mockContext.getSharedPreferences(PREF_KEY, PREF_MODE) } returns mockSharedPreferences
+        every { mockContext.packageName } returns "test_package_name"
+        every { mockSharedPreferences.edit() } returns mockEditor
+        every { mockSharedPreferences.registerOnSharedPreferenceChangeListener(any()) } answers {
+            listener = arg(0)
         }
 
-        doReturn(editor).`when`(sharedPreferences).edit()
-
-        flowkPrefs = flowkPrefs(context, testCoroutineScope)
+        testFlowkPrefs = flowkPrefs(mockContext, testCoroutineScope,
+            PREF_KEY,
+            PREF_MODE
+        )
     }
 
     @After
@@ -93,100 +77,95 @@ class FlowKPreferenceTest {
     }
 
     @Test
-    fun `observe value change`() =
+    fun `observe value change`(): Unit =
         testCoroutineScope
             .runBlockingTest {
                 var recvKey: String? = null
 
                 val key = "secret_key"
-
-                // when evaluated should register a click listener
-                // in [FlowKPreference].
-                val observer = (flowkPrefs as FlowKPreference)
+                val observer = (testFlowkPrefs as FlowKPreference)
                     .onKeyChange
-
-                // it should thus not be null here because we mock and
-                // set listener to it.getArguments(0) whenever invoked
-                assertThat(listener).isNotEqualTo(null)
-
-                // and a call to .register should have been invoked
-                verify(sharedPreferences).registerOnSharedPreferenceChangeListener(listener)
-
-                listener?.onSharedPreferenceChanged(sharedPreferences, key)
 
                 testCoroutineScope
                     .launch {
                         observer
                             .collect {
-                                println("asdf")
                                 recvKey = it
                             }
                     }
+
+                assertThat(listener).isNotEqualTo(null)
+
+                verify {
+                    mockSharedPreferences.registerOnSharedPreferenceChangeListener(listener)
+                }
+
+                listener?.onSharedPreferenceChanged(mockSharedPreferences, key)
 
                 assertThat(recvKey).isEqualTo(key)
             }
 
     @Test
-    fun `test boolean`() {
+    fun `test put boolean`() {
         val key = "bool_key"
-        val pref = flowkPrefs.boolean(key, true)
+        val pref = testFlowkPrefs.boolean(key, true)
 
         assertThat(pref.key()).isEqualTo(key)
         assertThat(pref.defaultValue()).isTrue()
     }
 
     @Test
-    fun `test float`() {
+    fun `test put float`() {
         val key = "float_key"
-        val pref = flowkPrefs.float(key, 1f)
+        val pref = testFlowkPrefs.float(key, 1f)
 
         assertThat(pref.key()).isEqualTo(key)
         assertThat(pref.defaultValue()).isEqualTo(1f)
     }
 
     @Test
-    fun `test integer`() {
+    fun `test put integer`() {
         val key = "integer_key"
-        val pref = flowkPrefs.integer(key, 62)
+        val pref = testFlowkPrefs.integer(key, 62)
 
         assertThat(pref.key()).isEqualTo(key)
         assertThat(pref.defaultValue()).isEqualTo(62)
     }
 
     @Test
-    fun `test long`() {
+    fun `test put long`() {
         val key = "long_key"
-        val pref = flowkPrefs.long(key, 12771L)
+        val pref = testFlowkPrefs.long(key, 12771L)
 
         assertThat(pref.key()).isEqualTo(key)
         assertThat(pref.defaultValue()).isEqualTo(12771L)
     }
 
     @Test
-    fun `test string`() {
+    fun `test put string`() {
         val key = "string_key"
-        val pref = flowkPrefs.string(key, "correct horse battery staple")
+        val pref = testFlowkPrefs.string(key, "correct horse battery staple")
 
         assertThat(pref.key()).isEqualTo(key)
         assertThat(pref.defaultValue()).isEqualTo("correct horse battery staple")
     }
 
     @Test
-    fun `test string set`() {
+    fun `test put string set`() {
         val key = "stringset_key"
 
         val defaultValue = mutableSetOf("correct horse battery staple")
-        val pref = flowkPrefs.stringSet(key, defaultValue = defaultValue)
+        val pref = testFlowkPrefs.stringSet(key, defaultValue = defaultValue)
 
         assertThat(pref.key()).isEqualTo(key)
         assertThat(pref.defaultValue()).isEqualTo(defaultValue)
     }
 
     @Test
-    fun `test enum`() {
+    fun `test put enum`() {
         val key = "enum_key"
 
-        val pref = flowkPrefs.enum(
+        val pref = testFlowkPrefs.enum(
             key,
             Character.A,
             Character.Companion::fromString,
@@ -196,22 +175,35 @@ class FlowKPreferenceTest {
         assertThat(pref.key()).isEqualTo(key)
         assertThat(pref.defaultValue()).isEqualTo(Character.A)
 
-        doReturn(true).`when`(sharedPreferences).contains(key)
-        doReturn("a").`when`(sharedPreferences).getString(eq(key), any())
+        every { mockSharedPreferences.contains(key) } returns true
+        every { mockSharedPreferences.getString(eq(key), any()) } returns "a"
+
         assertThat(pref.get()).isEqualTo(Character.A)
 
-        doReturn("c").`when`(sharedPreferences).getString(eq(key), any())
+        every { mockSharedPreferences.getString(eq(key), any()) } returns "c"
+
         assertThat(pref.get()).isEqualTo(Character.C)
 
+        every { mockEditor.putString(eq(key), "d") } returns mockEditor
+        every { mockEditor.apply() } returns Unit
         pref.set(Character.D)
-        verify(editor).putString(key, "d")
+
+        verify {
+            mockEditor.putString(key, "d")
+        }
     }
 
     @Test
     fun `test clear`() {
-        doReturn(editor).`when`(editor).clear()
-        flowkPrefs.clear()
-        verify(editor.clear()).apply()
+        every { mockEditor.clear() } returns mockEditor
+        every { mockEditor.clear().apply() } returns Unit
+
+        testFlowkPrefs.clear()
+        verify {
+            mockEditor
+                .clear()
+                .apply()
+        }
     }
 
     enum class Character {

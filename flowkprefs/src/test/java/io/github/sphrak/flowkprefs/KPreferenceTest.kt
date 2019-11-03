@@ -66,11 +66,6 @@ class KPreferenceTest {
             sharedPreferences.getString(key, "") != null
         }
 
-        /*`when`(sharedPreferences.contains(any())).thenAnswer {
-            val key: String = it.getArgument<String>(0)
-            return@thenAnswer sharedPreferences.getString(key, "") != null
-        }*/
-
         kPreferenceString = KPreference(
             sharedPreferences = sharedPreferences,
             key = PREF_KEY,
@@ -96,7 +91,7 @@ class KPreferenceTest {
 
     @Test
     fun `do get value`() {
-        val expectedValue = "lagom är bäst"
+        val expectedValue = "lagom aer baest"
 
         every { adapter.get(eq(PREF_KEY), sharedPreferences) } returns expectedValue
         every { sharedPreferences.getString(eq(PREF_KEY), any()) } returns expectedValue
