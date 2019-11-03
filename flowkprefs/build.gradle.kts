@@ -106,7 +106,7 @@ bintray {
     setPublications("Flowkprefs")
     pkg(
         delegateClosureOf<BintrayExtension.PackageConfig> {
-            repo = "flowkprefs"
+            repo = "Flowkprefs"
             name = artifactId
             vcsUrl = "https://github.com/sphrak/Flowkprefs/"
             version(
