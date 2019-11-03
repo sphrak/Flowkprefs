@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
     }
 
     private val flowKPrefs: IFlowKPreference by lazy {
-        flowkPrefs(this)
+        flowkPrefs(this, coroutineScope)
     }
 
     private val coroutineScope by lazy {
