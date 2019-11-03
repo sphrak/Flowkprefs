@@ -15,8 +15,7 @@ buildscript {
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle.kts files
     }
-    version = "1.0.0-alpha03"
-    group = "io.github.sphrak"
+
 }
 
 allprojects {
@@ -29,4 +28,6 @@ allprojects {
             url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
         }
     }
+    version = "1.0.0-alpha06"
+    group = "io.github.sphrak"
 }

@@ -90,7 +90,7 @@ dependencies {
 
 publishing {
     publications {
-        create<MavenPublication>("Flowkprefs") {
+        create<MavenPublication>("flowkprefs") {
             artifact("$buildDir/outputs/aar/flowkprefs-release.aar")
             groupId = project.group as String
             artifactId = project.name
@@ -103,12 +103,12 @@ bintray {
     user = System.getenv("BINTRAY_USER")
     key = System.getenv("BINTRAY_API_KEY")
     publish = true
-    setPublications("Flowkprefs")
+    setPublications("flowkprefs")
     pkg(
         delegateClosureOf<BintrayExtension.PackageConfig> {
             repo = "flowkprefs"
             name = artifactId
-            vcsUrl = "https://github.com/sphrak/Flowkprefs/"
+            vcsUrl = "https://github.com/sphrak/flowkprefs/"
             version(
                 delegateClosureOf<BintrayExtension.VersionConfig> {
                     name = project.version as String
