@@ -62,7 +62,6 @@ class KPreferenceTest {
         every { sharedPreferences.edit() } returns editor
         every { sharedPreferences.contains(PREF_KEY) } answers {
             val key: String = args[0] as String
-            println("KEY: $key")
             sharedPreferences.getString(key, "") != null
         }
 
