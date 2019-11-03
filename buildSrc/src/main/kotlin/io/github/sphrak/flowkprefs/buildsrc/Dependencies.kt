@@ -23,7 +23,7 @@ object Dependencies {
         const val kotlinxCoroutinesCore = "1.3.0"
         const val kotlinxCoroutinesAndroid = "1.3.0"
         const val kotlinxCoroutinesTest = "1.3.0"
-        const val ktlintPlugin = "0.34.2"
+        const val ktlintPlugin = "0.35.0"
         const val timber = "4.7.1"
         const val junit = "4.12"
         const val androidxConstraintLayout = "2.0.0-beta2"
