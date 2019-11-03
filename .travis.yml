@@ -1,9 +1,13 @@
-dist: trusty
-language: java
+dist: bionic
+language: android
 cache:
   directories:
   - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
+android:
+  components:
+    - build-tools-29.0.2
+    - android-29
 before_install:
 - chmod +x gradlew
 script:
