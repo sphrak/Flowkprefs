@@ -103,7 +103,7 @@ bintray {
     user = System.getenv("BINTRAY_USER")
     key = System.getenv("BINTRAY_API_KEY")
     publish = true
-    setPublications("mavenJava")
+    setPublications("Flowkprefs")
     pkg(
         delegateClosureOf<BintrayExtension.PackageConfig> {
             repo = "flowkprefs"
