@@ -16,6 +16,7 @@
 
 import io.github.sphrak.flowkprefs.buildsrc.Dependencies
 import com.jfrog.bintray.gradle.BintrayExtension
+import com.android.build.gradle.BaseExtension
 
 plugins {
     id("com.android.library")
@@ -88,35 +89,50 @@ dependencies {
 
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("flowkprefs") {
-            artifact("$buildDir/outputs/aar/flowkprefs-release.aar")
-            groupId = project.group as String
-            artifactId = project.name
-            version = project.version as String
+project.afterEvaluate {
+
+    /**
+     *  https://stackoverflow.com/questions/52975515/
+     *
+     */
+
+    val sourcesJar = tasks.register<Jar>("sourcesJar") {
+        archiveClassifier.set("sources")
+        from(project.the<BaseExtension>().sourceSets["main"].java.srcDirs)
+    }
+
+    publishing {
+        publications {
+            create<MavenPublication>("flowkprefs") {
+                artifact("$buildDir/outputs/aar/flowkprefs-release.aar")
+                artifact(sourcesJar.get())
+                groupId = project.group as String
+                artifactId = project.name
+                version = project.version as String
+            }
         }
+    }
+
+    bintray {
+        user = System.getenv("BINTRAY_USER")
+        key = System.getenv("BINTRAY_API_KEY")
+        publish = true
+        setPublications("flowkprefs")
+        pkg(
+            delegateClosureOf<BintrayExtension.PackageConfig> {
+                repo = "flowkprefs"
+                name = artifactId
+                vcsUrl = "https://github.com/sphrak/flowkprefs/"
+                version(
+                    delegateClosureOf<BintrayExtension.VersionConfig> {
+                        name = project.version as String
+                    }
+                )
+            }
+        )
     }
 }
 
-bintray {
-    user = System.getenv("BINTRAY_USER")
-    key = System.getenv("BINTRAY_API_KEY")
-    publish = true
-    setPublications("flowkprefs")
-    pkg(
-        delegateClosureOf<BintrayExtension.PackageConfig> {
-            repo = "flowkprefs"
-            name = artifactId
-            vcsUrl = "https://github.com/sphrak/flowkprefs/"
-            version(
-                delegateClosureOf<BintrayExtension.VersionConfig> {
-                    name = project.version as String
-                }
-            )
-        }
-    )
-}
 
 tasks {
 
