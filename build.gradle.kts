@@ -26,6 +26,6 @@ allprojects {
             url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
         }
     }
-    version = "1.0.1"
+    version = "1.0.2"
     group = "io.github.sphrak"
 }
