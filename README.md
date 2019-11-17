@@ -19,13 +19,13 @@ repositories {
 **build.gradle.kts:**
 
 ```kotlin
-implementation("io.github.sphrak:flowkprefs:1.0.1")
+implementation("io.github.sphrak:flowkprefs:1.0.2")
 ```
 
 **build.gradle:**
 
 ```groovy
-implementation "io.github.sphrak:flowkprefs:1.0.1"
+implementation "io.github.sphrak:flowkprefs:1.0.2"
 ```
 
 ### Getting started
