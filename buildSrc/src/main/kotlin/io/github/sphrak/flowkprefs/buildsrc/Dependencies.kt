@@ -31,7 +31,7 @@ object Dependencies {
         const val androidxCoreKtx = "1.2.0-alpha04"
         const val androidxAppCompatResources = "1.1.0"
         const val assertK = "0.19"
-        const val androidXPreference = "1.1.0"
+        const val androidxPreference = "1.1.0"
         const val mockK = "1.9.3"
     }
 
@@ -46,7 +46,7 @@ object Dependencies {
     object Library {
         const val assertK = "com.willowtreeapps.assertk:assertk-jvm:${Version.assertK}"
         const val mockK = "io.mockk:mockk:${Version.mockK}"
-        const val androidXPreference = "androidx.preference:preference-ktx:${Version.androidXPreference}"
+        const val androidxPreference = "androidx.preference:preference-ktx:${Version.androidxPreference}"
 
         const val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk7:${Version.kotlinStdLib}"
         const val androidxCoreKtx = "androidx.core:core-ktx:${Version.androidxCoreKtx}"
