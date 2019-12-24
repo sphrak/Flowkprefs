@@ -64,7 +64,7 @@ dependencies {
     implementation(Dependencies.Library.androidxAppCompat)
     implementation(Dependencies.Library.androidxAppCompatResources)
     implementation(Dependencies.Library.androidxCoreKtx)
-    implementation(Dependencies.Library.androidXPreference)
+    api(Dependencies.Library.androidXPreference)
 
     /**
      *  Testing
