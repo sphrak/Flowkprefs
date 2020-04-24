@@ -52,7 +52,7 @@ android {
 
 dependencies {
 
-    api(project(":flowkprefs"))
+    implementation(project(":flowkprefs"))
     implementation(Dependencies.Library.kotlinStdLib)
     implementation(Dependencies.Library.androidxAppCompat)
     implementation(Dependencies.Library.androidxConstraintLayout)
