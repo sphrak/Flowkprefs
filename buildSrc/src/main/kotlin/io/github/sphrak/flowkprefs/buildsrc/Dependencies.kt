@@ -20,9 +20,7 @@ object Dependencies {
 
     object Version {
         const val kotlinStdLib = "1.3.72"
-        const val kotlinxCoroutinesCore = "1.3.5"
-        const val kotlinxCoroutinesAndroid = "1.3.5"
-        const val kotlinxCoroutinesTest = "1.3.5"
+        const val kotlinxCoroutines = "1.3.5"
         const val ktlintPlugin = "0.36.0"
         const val timber = "4.7.1"
         const val junit = "4.13"
@@ -59,9 +57,9 @@ object Dependencies {
         const val timber = "com.jakewharton.timber:timber:${Version.timber}"
         const val ktlintPlugin = "com.pinterest:ktlint:${Version.ktlintPlugin}"
 
-        const val kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Version.kotlinxCoroutinesCore}"
-        const val kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Version.kotlinxCoroutinesAndroid}"
-        const val kotlinxCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Version.kotlinxCoroutinesTest}"
+        const val kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Version.kotlinxCoroutines}"
+        const val kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Version.kotlinxCoroutines}"
+        const val kotlinxCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Version.kotlinxCoroutines}"
         const val junit = "junit:junit:${Version.junit}"
 
         const val androidxAppCompat = "androidx.appcompat:appcompat:${Version.androidxAppCompat}"
