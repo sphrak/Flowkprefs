@@ -52,7 +52,7 @@ class FlowKPreferenceTest {
 
     private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
 
-    private lateinit var testFlowkPrefs: IFlowKPreference
+    private lateinit var testFlowkPrefs: FlowKPreference
 
     private val testCoroutineScope = TestCoroutineScope()
 
@@ -83,7 +83,7 @@ class FlowKPreferenceTest {
                 var recvKey: String? = null
 
                 val key = "secret_key"
-                val observer = (testFlowkPrefs as FlowKPreference)
+                val observer = (testFlowkPrefs as FlowKPreferenceImpl)
                     .onKeyChange
 
                 testCoroutineScope
