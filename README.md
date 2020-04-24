@@ -19,13 +19,13 @@ repositories {
 **build.gradle.kts:**
 
 ```kotlin
-implementation("io.github.sphrak:flowkprefs:1.0.3")
+implementation("io.github.sphrak:flowkprefs:2.0.0")
 ```
 
 **build.gradle:**
 
 ```groovy
-implementation "io.github.sphrak:flowkprefs:1.0.3"
+implementation "io.github.sphrak:flowkprefs:2.0.0"
 ```
 
 ### Getting started
@@ -44,7 +44,7 @@ val myPrefs = flowkPrefs(this, "my_prefs", MODE_PRIVATE)
 ```
 
 ### Retrieving a KPreference
-With a `FlowKPreference` instance you can retrieve `IKPreference` preference which packs additional functionality.
+With a `FlowKPreference` instance you can retrieve `KPreference` preference which packs additional functionality.
 
 ```kotlin
 val myPrefs: FlowKPreference = // ...
@@ -101,7 +101,7 @@ observable
 ### KPreference Consumer
 `KPreference` acts as a Kotlin Flow `FlowCollector<T>`. You can use this to save preference values from the emissions of a `Flow`.
 
-For example wiht [corbind](https://github.com/LDRAlighieri/Corbind) which provides Kotlin Flow bindings for views. 
+For example with [corbind](https://github.com/LDRAlighieri/Corbind) which provides Kotlin Flow bindings for views. 
 
 ```kotlin
 val myPref: KPreference<Boolean> = // ...
