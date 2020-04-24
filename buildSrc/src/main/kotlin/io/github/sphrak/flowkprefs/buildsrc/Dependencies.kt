@@ -35,12 +35,18 @@ object Dependencies {
         const val mockK = "1.9.3"
     }
 
+    object Classpath {
+        const val androidToolsBuildGradle: String = "com.android.tools.build:gradle:4.1.0-alpha07"
+        const val kotlinGradlePlugin: String = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Version.kotlinStdLib}"
+        const val gradleBintrayPlugin: String = "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+    }
+
     object Android {
         const val minSdk = 21
-        const val targetSdk = 28
-        const val compileSdk = 28
+        const val targetSdk = 29
+        const val compileSdk = 29
         const val versionCode = 1
-        const val versionName = "1.0.0"
+        const val versionName = "2.0.0"
     }
 
     object Library {
