@@ -1,15 +1,12 @@
-plugins {
-    kotlin("jvm") version "1.3.61"
-}
 buildscript {
     repositories {
         google()
         jcenter()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:4.0.0-alpha06")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.3.61")
-        classpath("com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4")
+        classpath(io.github.sphrak.flowkprefs.buildsrc.Dependencies.Classpath.gradleBintrayPlugin)
+        classpath(io.github.sphrak.flowkprefs.buildsrc.Dependencies.Classpath.kotlinGradlePlugin)
+        classpath(io.github.sphrak.flowkprefs.buildsrc.Dependencies.Classpath.androidToolsBuildGradle)
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle.kts files
     }
@@ -22,9 +19,6 @@ allprojects {
         jcenter()
         mavenCentral()
         mavenLocal()
-        maven {
-            url = uri("https://dl.bintray.com/kotlin/kotlin-eap")
-        }
     }
     version = "1.0.3"
     group = "io.github.sphrak"
