@@ -24,10 +24,10 @@ internal class FloatAdapter : IPreferenceAdapter<Float> {
         val INSTANCE = FloatAdapter()
     }
 
-    override fun get(key: String, sharedPreferences: SharedPreferences): Float =
-        sharedPreferences.getFloat(key, 0f)
+    override fun get(key: String, editor: SharedPreferences): Float =
+        editor.getFloat(key, 0f)
 
-    override fun set(key: String, value: Float, sharedPreferences: SharedPreferences.Editor) {
-        sharedPreferences.putFloat(key, value)
+    override fun set(key: String, value: Float, editor: SharedPreferences.Editor) {
+        editor.putFloat(key, value)
     }
 }
