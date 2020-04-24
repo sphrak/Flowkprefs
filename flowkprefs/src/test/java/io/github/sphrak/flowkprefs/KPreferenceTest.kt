@@ -65,7 +65,7 @@ class KPreferenceTest {
             sharedPreferences.getString(key, "") != null
         }
 
-        kPreferenceString = KPreference(
+        kPreferenceString = KPreferenceImpl(
             sharedPreferences = sharedPreferences,
             key = PREF_KEY,
             defaultValue = DEFAULT_VALUE,

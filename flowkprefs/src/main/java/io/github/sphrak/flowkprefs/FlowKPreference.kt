@@ -17,125 +17,92 @@
 package io.github.sphrak.flowkprefs
 
 import android.content.SharedPreferences
-import androidx.annotation.VisibleForTesting
-import io.github.sphrak.flowkprefs.adapter.BooleanAdapter
-import io.github.sphrak.flowkprefs.adapter.EnumAdapter
-import io.github.sphrak.flowkprefs.adapter.FloatAdapter
-import io.github.sphrak.flowkprefs.adapter.IntAdapter
-import io.github.sphrak.flowkprefs.adapter.LongAdapter
-import io.github.sphrak.flowkprefs.adapter.StringAdapter
-import io.github.sphrak.flowkprefs.adapter.StringSetAdapter
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.launch
+import androidx.annotation.CheckResult
 
-@ExperimentalCoroutinesApi
-internal class FlowKPreference(
-    private val sharedPrefs: SharedPreferences,
-    private val coroutineScope: CoroutineScope
-) : IFlowKPreference {
+interface FlowKPreference {
 
-    @VisibleForTesting
-    internal val onKeyChange: Flow<String> = callbackFlow {
-        val changeListener =
-            SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
-                coroutineScope.launch {
-                    send(key)
-                }
-            }
-
-        sharedPrefs.registerOnSharedPreferenceChangeListener(changeListener)
-
-        awaitClose {
-            sharedPrefs.unregisterOnSharedPreferenceChangeListener(changeListener)
-        }
-    }
-
-    override fun boolean(key: String, defaultValue: Boolean): IKPreference<Boolean> =
-        KPreference(
-            sharedPreferences = sharedPrefs,
-            key = key,
-            defaultValue = defaultValue,
-            onKeyChange = onKeyChange,
-            adapter = BooleanAdapter.INSTANCE
-        )
-
-    override fun float(key: String, defaultValue: Float): IKPreference<Float> =
-        KPreference(
-            sharedPreferences = sharedPrefs,
-            key = key,
-            defaultValue = defaultValue,
-            onKeyChange = onKeyChange,
-            adapter = FloatAdapter.INSTANCE
-        )
-
-    override fun integer(key: String, defaultValue: Int): IKPreference<Int> =
-        KPreference(
-            sharedPreferences = sharedPrefs,
-            key = key,
-            defaultValue = defaultValue,
-            onKeyChange = onKeyChange,
-            adapter = IntAdapter.INSTANCE
-        )
-
-    override fun long(key: String, defaultValue: Long): IKPreference<Long> =
-        KPreference(
-            sharedPreferences = sharedPrefs,
-            key = key,
-            defaultValue = defaultValue,
-            onKeyChange = onKeyChange,
-            adapter = LongAdapter.INSTANCE
-        )
-
-    override fun string(key: String, defaultValue: String): IKPreference<String> =
-        KPreference(
-            sharedPreferences = sharedPrefs,
-            key = key,
-            defaultValue = defaultValue,
-            onKeyChange = onKeyChange,
-            adapter = StringAdapter.INSTANCE
-        )
-
-    override fun stringSet(
+    /**
+     * Retrieves a boolean preference.
+     *
+     * @return a [IKPreference] which gets and sets a boolean.
+     */
+    @CheckResult
+    fun boolean(
         key: String,
-        defaultValue: MutableSet<String>
-    ): IKPreference<MutableSet<String>> =
-        KPreference(
-            sharedPreferences = sharedPrefs,
-            key = key,
-            defaultValue = defaultValue,
-            onKeyChange = onKeyChange,
-            adapter = StringSetAdapter.INSTANCE
-        )
+        defaultValue: Boolean = false
+    ): KPreference<Boolean>
 
-    override fun <T : Enum<T>> enum(
+    /**
+     * Retrieves a float preference.
+     *
+     * @return a [KPreference] which gets and sets a floating-point decimal.
+     */
+    @CheckResult
+    fun float(
+        key: String,
+        defaultValue: Float = 0f
+    ): KPreference<Float>
+
+    /**
+     * Retrieves a integers preference.
+     *
+     * @return a [KPreference] which gets and sets a 32-bit integer.
+     */
+    @CheckResult
+    fun integer(
+        key: String,
+        defaultValue: Int = 0
+    ): KPreference<Int>
+
+    /**
+     * Retrieves a long preference.
+     *
+     * @return a [KPreference] which gets and set a 64-bit integer (long).
+     */
+    @CheckResult
+    fun long(
+        key: String,
+        defaultValue: Long = 0L
+    ): KPreference<Long>
+
+    /**
+     * Retrieves a string preference.
+     *
+     * @return a [KPreference] which gets and sets a string.
+     */
+    @CheckResult
+    fun string(
+        key: String,
+        defaultValue: String = ""
+    ): KPreference<String>
+
+    /**
+     * Retrieves a string set preference.
+     *
+     * @return a [KPreference] which gets and sets a string set.
+     */
+    @CheckResult
+    fun stringSet(
+        key: String,
+        defaultValue: MutableSet<String> = mutableSetOf()
+    ): KPreference<MutableSet<String>>
+
+    /**
+     * Retrieves an enum preference.
+     *
+     * @return a [KPreference] which gets and sets an enum,
+     */
+    @CheckResult
+    fun <T : Enum<T>> enum(
         key: String,
         defaultValue: T,
         convertIn: (String) -> T,
         convertOut: (T) -> String
-    ): IKPreference<T> =
-        KPreference(
-            sharedPreferences = sharedPrefs,
-            key = key,
-            defaultValue = defaultValue,
-            onKeyChange = onKeyChange,
-            adapter = EnumAdapter(
-                defaultValue = defaultValue,
-                convertIn = convertIn,
-                convertOut = convertOut
-            )
-        )
+    ): KPreference<T>
 
-    override fun clear() {
-        sharedPrefs
-            .edit()
-            .clear()
-            .apply()
-    }
+    /** Clears all preferences in the current preferences collection. */
+    fun clear()
 
-    override fun getSharedPreferences(): SharedPreferences =
-        sharedPrefs
+    /** @return The underlying SharedPreferences instance. */
+    fun getSharedPreferences(): SharedPreferences
 }

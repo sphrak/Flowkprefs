@@ -19,7 +19,7 @@ package io.github.sphrak.flowkprefs.sample
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import io.github.sphrak.flowkprefs.IFlowKPreference
+import io.github.sphrak.flowkprefs.FlowKPreference
 import io.github.sphrak.flowkprefs.extension.flowkPrefs
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -40,7 +39,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
         const val INT_KEY: String = "LAUNCHED_AT"
     }
 
-    private val flowKPrefs: IFlowKPreference by lazy {
+    private val flowKPrefs: FlowKPreference by lazy {
         flowkPrefs(this, coroutineScope)
     }
 

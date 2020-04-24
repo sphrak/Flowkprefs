@@ -16,65 +16,31 @@
 
 package io.github.sphrak.flowkprefs
 
-import android.content.SharedPreferences
-import androidx.annotation.VisibleForTesting
-import io.github.sphrak.flowkprefs.adapter.IPreferenceAdapter
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import androidx.annotation.CheckResult
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.FlowCollector
 
-@ExperimentalCoroutinesApi
-internal class KPreference<T>(
-    private val sharedPreferences: SharedPreferences,
-    private val key: String,
-    private val defaultValue: T,
-    onKeyChange: Flow<String>,
-    private val adapter: IPreferenceAdapter<T>
-) : IKPreference<T> {
+interface KPreference<T> : FlowCollector<T> {
 
-    @VisibleForTesting
-    private val values: Flow<T> = onKeyChange
-            .filter {
-                it == key
-            }.map {
-                get()
-            }
+    @CheckResult
+    fun key(): String
 
-    override fun key(): String = key
+    @CheckResult
+    fun defaultValue(): T
 
-    override fun defaultValue(): T = defaultValue
+    fun get(): T
 
-    @Synchronized
-    override fun get(): T = if (!isSet()) {
-        defaultValue
-    } else {
-        adapter.get(key, sharedPreferences)
-    }
+    fun set(value: T)
 
-    @Synchronized
-    override fun set(value: T) {
-        val editor = sharedPreferences.edit()
-        adapter.set(key, value, editor)
-        editor.apply()
-    }
+    @CheckResult
+    fun isSet(): Boolean
 
-    override fun isSet(): Boolean =
-        sharedPreferences
-            .contains(key)
+    fun delete()
 
-    override fun delete(): Unit =
-        sharedPreferences
-            .edit()
-            .remove(key)
-            .apply()
+    @CheckResult
+    fun observe(): Flow<T>
 
-    override fun observe(): Flow<T> = values
+    fun asObservable(): Flow<T>
 
-    override suspend fun emit(value: T): Unit =
-        set(value)
-
-    override fun asObservable(): Flow<T> = values
-
-    override fun asConsumer(): KPreference<T> = this
+    fun asConsumer(): FlowCollector<T>
 }
