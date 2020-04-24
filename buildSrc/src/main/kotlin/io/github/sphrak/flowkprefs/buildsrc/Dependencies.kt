@@ -19,13 +19,13 @@ package io.github.sphrak.flowkprefs.buildsrc
 object Dependencies {
 
     object Version {
-        const val kotlinStdLib = "1.3.50"
-        const val kotlinxCoroutinesCore = "1.3.0"
-        const val kotlinxCoroutinesAndroid = "1.3.0"
-        const val kotlinxCoroutinesTest = "1.3.0"
-        const val ktlintPlugin = "0.35.0"
+        const val kotlinStdLib = "1.3.72"
+        const val kotlinxCoroutinesCore = "1.3.5"
+        const val kotlinxCoroutinesAndroid = "1.3.5"
+        const val kotlinxCoroutinesTest = "1.3.5"
+        const val ktlintPlugin = "0.36.0"
         const val timber = "4.7.1"
-        const val junit = "4.12"
+        const val junit = "4.13"
         const val androidxConstraintLayout = "2.0.0-beta2"
         const val androidxAppCompat = "1.1.0"
         const val androidxCoreKtx = "1.2.0-alpha04"
