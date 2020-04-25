@@ -33,7 +33,6 @@ import kotlin.coroutines.CoroutineContext
 @ExperimentalCoroutinesApi
 class MainActivityAdapter(
     private val channel: ConflatedBroadcastChannel<MainActivityView.Event>,
-    private val viewModel: MainActivityViewModel,
     private val coroutineScope: CoroutineScope
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 

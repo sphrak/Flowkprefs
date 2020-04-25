@@ -28,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
@@ -39,14 +40,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
 
     private val viewModel: MainActivityViewModel = MainActivityViewModel(channel = channel)
 
-
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Main
 
     private val coroutineScope by lazy {
         CoroutineScope(coroutineContext)
     }
-    private val mainActivityAdapter = MainActivityAdapter(channel, viewModel, coroutineScope)
+
+    private val mainActivityAdapter = MainActivityAdapter(channel, coroutineScope)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,7 +65,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
         launch(coroutineContext) {
             viewModel()
                 .flowOn(
-                    Dispatchers.IO
+                    Dispatchers.Main
                 ).collect(::render)
         }
 
