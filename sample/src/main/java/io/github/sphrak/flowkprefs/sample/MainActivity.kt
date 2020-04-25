@@ -19,15 +19,15 @@ package io.github.sphrak.flowkprefs.sample
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import io.github.sphrak.flowkprefs.FlowKPreference
-import io.github.sphrak.flowkprefs.extension.flowkPrefs
+import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
@@ -35,110 +35,56 @@ import kotlin.coroutines.CoroutineContext
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
 
-    private companion object {
-        const val INT_KEY: String = "LAUNCHED_AT"
-    }
+    private val channel: ConflatedBroadcastChannel<MainActivityView.Event> = ConflatedBroadcastChannel()
 
-    private val flowKPrefs: FlowKPreference by lazy {
-        flowkPrefs(this, coroutineScope)
-    }
+    private val viewModel: MainActivityViewModel = MainActivityViewModel(channel = channel)
 
-    private val coroutineScope by lazy {
-        CoroutineScope(coroutineContext)
-    }
 
     override val coroutineContext: CoroutineContext
         get() = Job() + Dispatchers.Main
 
-    private val value: Int get()
-        = System.currentTimeMillis().toInt()
+    private val coroutineScope by lazy {
+        CoroutineScope(coroutineContext)
+    }
+    private val mainActivityAdapter = MainActivityAdapter(channel, viewModel, coroutineScope)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Timber.d("ON CREATE")
 
-        observe()
-
-        launch {
-            activityMainButton
-                .setOnClickListener {
-                    Timber.d("ON CLICK: $value")
-                    write(INT_KEY, value)
-                }
+        recycler_view.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = mainActivityAdapter
         }
+
+        launch(coroutineContext) {
+            channel.send(MainActivityView.Event.OnCreate)
+        }
+
+        launch(coroutineContext) {
+            viewModel()
+                .flowOn(
+                    Dispatchers.IO
+                ).collect(::render)
+        }
+
     }
 
-    override fun onResume() {
-        super.onResume()
-        observe()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        cancel()
-    }
-
-    private fun observe() {
-        launch {
-            flowKPrefs.integer(INT_KEY)
-                .observe()
-                .collect { value: Int ->
-                    Timber.d("OBSERVER #1: $value")
-                    upperLeft.text = value.toString()
-                }
-        }
-        launch {
-            flowKPrefs.integer(INT_KEY)
-                .observe()
-                .collect { value: Int ->
-                    Timber.d("OBSERVER #2: $value")
-                    upperRight.text = value.toString()
-                }
-        }
-        launch {
-            flowKPrefs.integer(INT_KEY)
-                .observe()
-                .collect { value: Int ->
-                    Timber.d("OBSERVER #3: $value")
-                    lowerLeft.text = value.toString()
-                }
-        }
-        launch {
-            flowKPrefs.integer(INT_KEY)
-                .observe()
-                .collect { value: Int ->
-                    Timber.d("OBSERVER #4: $value")
-                    lowerRight.text = value.toString()
-                }
-        }
-        launch {
-            flowKPrefs.integer(INT_KEY)
-                .observe()
-                .collect { value: Int ->
-                    Timber.d("OBSERVER #5: $value")
-                    Toast.makeText(applicationContext, "$value changed!", Toast.LENGTH_LONG)
-                        .show()
-                }
-        }
-    }
-
-    private fun read(key: String): String =
-        when (key) {
-            INT_KEY -> flowKPrefs
-                .string(key = key)
-                .get()
-            else -> "unhandled key: $key"
-        }
-
-    private fun write(key: String, value: Int): Unit =
-        when (key) {
-            INT_KEY -> {
-                Timber.d("WRITE value $value to $key key")
-                flowKPrefs
-                    .integer(key, 0)
-                    .set(value = value)
+    suspend fun render(state: MainActivityView.State) {
+        when (state.renderEvent) {
+            MainActivityView.RenderEvent.Idle -> Unit
+            is MainActivityView.RenderEvent.ItemClicked -> {
+                Timber.d("ASDF RECEIVED: ${state.renderEvent.value}")
+                Toast.makeText(this, state.renderEvent.value, Toast.LENGTH_LONG).show()
             }
-            else -> println("unhandled key: $key")
+            is MainActivityView.RenderEvent.DisplayStringList -> displayText(state.renderEvent.listOfString)
         }
+    }
+
+    private fun displayText(list: List<String>) {
+
+        mainActivityAdapter.updateList(list)
+
+    }
 
 }

@@ -54,6 +54,7 @@ dependencies {
 
     implementation(project(":flowkprefs"))
     implementation(Dependencies.Library.kotlinStdLib)
+    implementation(Dependencies.Library.kotlinxCoroutinesCore)
     implementation(Dependencies.Library.androidxAppCompat)
     implementation(Dependencies.Library.androidxConstraintLayout)
     implementation(Dependencies.Library.timber)
