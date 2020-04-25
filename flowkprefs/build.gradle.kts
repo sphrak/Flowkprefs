@@ -59,6 +59,7 @@ val inputFiles = project.fileTree(mapOf("dir" to "src", "include" to "**/*.kt"))
 dependencies {
 
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    implementation("com.dropbox.mobile.store:multicast:4.0.0-alpha05")
     api(Dependencies.Library.kotlinStdLib)
     api(Dependencies.Library.kotlinxCoroutinesCore)
     implementation(Dependencies.Library.androidxAppCompat)
