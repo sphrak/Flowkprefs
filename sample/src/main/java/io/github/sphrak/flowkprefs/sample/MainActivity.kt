@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
 
     private val channel: ConflatedBroadcastChannel<MainActivityView.Event> = ConflatedBroadcastChannel()
 
-    @ObsoleteCoroutinesApi
     private val viewModel: MainActivityViewModel = MainActivityViewModel(channel = channel)
 
     override val coroutineContext: CoroutineContext
@@ -63,9 +62,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
             adapter = mainActivityAdapter
         }
 
-        launch(coroutineContext) {
-            channel.send(MainActivityView.Event.OnCreate)
-        }
+
+        channel.offer(MainActivityView.Event.OnCreate)
 
         launch(coroutineContext) {
             viewModel()
