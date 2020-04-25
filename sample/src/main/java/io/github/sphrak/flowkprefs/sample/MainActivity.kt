@@ -17,9 +17,10 @@
 package io.github.sphrak.flowkprefs.sample
 
 import android.os.Bundle
-import android.widget.Toast
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -30,7 +31,6 @@ import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
@@ -81,7 +81,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
             MainActivityView.RenderEvent.Idle -> Unit
             is MainActivityView.RenderEvent.ItemClicked -> {
                 Timber.d("ASDF RECEIVED: ${state.renderEvent.value}")
-                Toast.makeText(this, state.renderEvent.value, Toast.LENGTH_LONG).show()
+                val parentLayout: View = findViewById(android.R.id.content)
+                Snackbar.make(parentLayout, state.renderEvent.value, Snackbar.LENGTH_SHORT)
+                    .show()
             }
             is MainActivityView.RenderEvent.DisplayStringList -> displayText(state.renderEvent.listOfString)
         }

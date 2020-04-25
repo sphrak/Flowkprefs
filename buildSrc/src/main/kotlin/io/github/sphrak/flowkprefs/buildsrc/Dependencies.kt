@@ -57,6 +57,8 @@ object Dependencies {
         const val timber = "com.jakewharton.timber:timber:${Version.timber}"
         const val ktlintPlugin = "com.pinterest:ktlint:${Version.ktlintPlugin}"
 
+        const val materialComponents = "com.google.android.material:material:1.1.0"
+
         const val kotlinxCoroutinesCore = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Version.kotlinxCoroutines}"
         const val kotlinxCoroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Version.kotlinxCoroutines}"
         const val kotlinxCoroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Version.kotlinxCoroutines}"

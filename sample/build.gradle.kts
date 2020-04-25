@@ -58,5 +58,6 @@ dependencies {
     implementation(Dependencies.Library.androidxAppCompat)
     implementation(Dependencies.Library.androidxConstraintLayout)
     implementation(Dependencies.Library.timber)
+    implementation(Dependencies.Library.materialComponents)
 
 }
