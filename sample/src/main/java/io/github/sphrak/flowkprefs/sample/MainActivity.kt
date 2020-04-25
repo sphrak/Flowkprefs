@@ -24,7 +24,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
@@ -33,11 +35,14 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.coroutines.CoroutineContext
 
+@ObsoleteCoroutinesApi
+@FlowPreview
 @ExperimentalCoroutinesApi
 class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
 
     private val channel: ConflatedBroadcastChannel<MainActivityView.Event> = ConflatedBroadcastChannel()
 
+    @ObsoleteCoroutinesApi
     private val viewModel: MainActivityViewModel = MainActivityViewModel(channel = channel)
 
     override val coroutineContext: CoroutineContext
@@ -65,7 +70,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
         launch(coroutineContext) {
             viewModel()
                 .flowOn(
-                    Dispatchers.Main
+                    Dispatchers.IO
                 ).collect(::render)
         }
 
@@ -83,9 +88,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main), CoroutineScope {
     }
 
     private fun displayText(list: List<String>) {
-
         mainActivityAdapter.updateList(list)
-
     }
 
 }

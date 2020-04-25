@@ -17,30 +17,36 @@
 package io.github.sphrak.flowkprefs.sample
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
+import kotlinx.coroutines.channels.consume
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import timber.log.Timber
 
+@FlowPreview
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainActivityViewModel constructor(
     private val channel: ConflatedBroadcastChannel<MainActivityView.Event>,
     private var state: MainActivityView.State = MainActivityView.State()
 ) {
 
-    suspend operator fun invoke(): Flow<MainActivityView.State> = channel
-        .openSubscription()
-        .receive()
-        .let {
-            event: MainActivityView.Event ->
-            Timber.d("ASDF INVOKE: $event")
-            reduce(event)
-        }
+    suspend operator fun invoke(): Flow<MainActivityView.State> =
+        channel
+            .asFlow()
+            .flatMapConcat { event: MainActivityView.Event ->
+                reduce(event)
+            }
 
-    private fun reduce(e: MainActivityView.Event): Flow<MainActivityView.State> = when (e) {
+    private fun reduce(event: MainActivityView.Event): Flow<MainActivityView.State> = when (event) {
         MainActivityView.Event.OnCreate -> onCreateEvent()
         MainActivityView.Event.OnViewCreated -> onResumeEvent()
-        is MainActivityView.Event.OnItemClicked ->onItemClickedEvent(e.value)
+        is MainActivityView.Event.OnItemClicked -> onItemClickedEvent(event.value)
     }
 
     private fun onItemClickedEvent(value: String): Flow<MainActivityView.State> = flow {
@@ -67,7 +73,7 @@ class MainActivityViewModel constructor(
         return list
     }
 
-    private fun getRandomString() : String {
+    private fun getRandomString(): String {
         val allowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
         return (1..32)
             .map { allowedChars.random() }
