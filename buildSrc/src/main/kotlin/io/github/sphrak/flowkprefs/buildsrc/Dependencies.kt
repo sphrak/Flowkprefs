@@ -29,7 +29,7 @@ object Dependencies {
         const val androidxCoreKtx = "1.2.0-alpha04"
         const val androidxAppCompatResources = "1.1.0"
         const val assertK = "0.19"
-        const val androidxPreference = "1.1.0"
+        const val androidxPreference = "1.1.1"
         const val mockK = "1.9.3"
     }
 

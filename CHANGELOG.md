@@ -6,6 +6,7 @@
 
 ### Changed
 
+* Bump AndroidX Preferences 1.1.1
 * Bump bintray plugin 1.8.5
 
 ### Fixed
