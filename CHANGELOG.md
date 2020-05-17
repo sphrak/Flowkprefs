@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.0.1] -- 2020-05-17
+
+### Fixed
+
+* In `2.0.0` the `flowkPrefs()` builder methods where inaccessible due to [broken toolings](https://github.com/sphrak/Flowkprefs/issues/5)
+
 ## [2.0.0] -- 2020-04-24
 
 ### Changed
@@ -37,9 +43,10 @@
 
 * Initial release
 
-[Unreleased]: https://github.com/sphrak/Either/compare/2.0.0...HEAD
-[2.0.0]: https://github.com/sphrak/Either/compare/1.0.3...2.0.0
-[1.0.3]: https://github.com/sphrak/Either/compare/1.0.2...1.0.3
-[1.0.2]: https://github.com/sphrak/Either/compare/1.0.1...1.0.2
-[1.0.1]: https://github.com/sphrak/Either/compare/1.0.0...1.0.1
-[1.0.0]: https://github.com/sphrak/Either/releases/tag/1.0.0
+[Unreleased]: https://github.com/sphrak/Flowkprefs/compare/2.0.1...HEAD
+[2.0.1]: https://github.com/sphrak/Flowkprefs/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/sphrak/Flowkprefs/compare/1.0.3...2.0.0
+[1.0.3]: https://github.com/sphrak/Flowkprefs/compare/1.0.2...1.0.3
+[1.0.2]: https://github.com/sphrak/Flowkprefs/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/sphrak/Flowkprefs/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/sphrak/Flowkprefs/releases/tag/1.0.0
