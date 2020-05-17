@@ -36,7 +36,7 @@ object Dependencies {
     object Classpath {
         const val androidToolsBuildGradle: String = "com.android.tools.build:gradle:3.6.0"
         const val kotlinGradlePlugin: String = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Version.kotlinStdLib}"
-        const val gradleBintrayPlugin: String = "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
+        const val gradleBintrayPlugin: String = "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.5"
     }
 
     object Android {

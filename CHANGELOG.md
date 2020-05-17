@@ -4,6 +4,10 @@
 
 ## [2.0.1] -- 2020-05-17
 
+### Changed
+
+* Bump bintray plugin 1.8.5
+
 ### Fixed
 
 * In `2.0.0` the `flowkPrefs()` builder methods where inaccessible due to [broken toolings](https://github.com/sphrak/Flowkprefs/issues/5)
