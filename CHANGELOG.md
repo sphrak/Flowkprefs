@@ -6,6 +6,7 @@
 
 ### Changed
 
+* Bump Kotlin Coroutines 1.3.6
 * Bump AndroidX Preferences 1.1.1
 * Bump bintray plugin 1.8.5
 

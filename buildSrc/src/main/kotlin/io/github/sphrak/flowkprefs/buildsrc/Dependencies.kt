@@ -20,7 +20,7 @@ object Dependencies {
 
     object Version {
         const val kotlinStdLib = "1.3.72"
-        const val kotlinxCoroutines = "1.3.5"
+        const val kotlinxCoroutines = "1.3.6"
         const val ktlintPlugin = "0.36.0"
         const val timber = "4.7.1"
         const val junit = "4.13"
